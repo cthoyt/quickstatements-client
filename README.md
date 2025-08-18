@@ -31,7 +31,8 @@
         <img src="https://zenodo.org/badge/606491168.svg" alt="DOI"></a>
 </p>
 
-A data model and client for Wikidata [QuickStatements](https://quickstatements.toolforge.org).
+A data model and client for Wikidata
+[QuickStatements](https://quickstatements.toolforge.org).
 
 ## 💪 Getting Started
 
@@ -78,9 +79,9 @@ import webbrowser
 webbrowser.open_new_tab(res.batch_url)
 ```
 
-Note: `token` and `username` are automatically looked up with `pystow` if they aren't given.
-Specifically, using `pystow.get_config("quickstatements", "token)` and
-`pystow.get_config("quickstatements", "username")`.
+Note: `token` and `username` are automatically looked up with `pystow` if they
+aren't given. Specifically, using `pystow.get_config("quickstatements", "token)`
+and `pystow.get_config("quickstatements", "username")`.
 
 ## 🚀 Installation
 
@@ -118,8 +119,9 @@ for more information on getting involved.
 
 ## 👋 Attribution
 
-This code was originally written as a contribution to [PyORCIDator](https://github.com/lubianat/pyorcidator).
-Special thanks to Tiago Lubiana [@lubianat] and João Vitor [@jvfe] for discussions and testing.
+This code was originally written as a contribution to
+[PyORCIDator](https://github.com/lubianat/pyorcidator). Special thanks to Tiago
+Lubiana [@lubianat] and João Vitor [@jvfe] for discussions and testing.
 
 ### ⚖️ License
 
