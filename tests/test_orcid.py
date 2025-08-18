@@ -1,6 +1,7 @@
 """Tests for ORCID."""
 
 import unittest
+from typing import cast
 
 from quickstatements_client import CreateLine, EntityLine, TextLine
 from quickstatements_client.sources.orcid import check_orcid_exists, iter_orcid_lines
@@ -22,7 +23,9 @@ class TestORCID(unittest.TestCase):
 
         lines = list(iter_orcid_lines(orcid, append=True))
         self.assertEqual(3, len(lines))
-        instance_line, occupation_line, orcid_line = lines
+        instance_line = cast(EntityLine, lines[0])
+        occupation_line = cast(EntityLine, lines[1])
+        orcid_line = cast(TextLine, lines[2])
 
         self.assertIsInstance(instance_line, EntityLine)
         self.assertEqual("P31", instance_line.predicate)
@@ -36,7 +39,10 @@ class TestORCID(unittest.TestCase):
     def test_not_in_wikidata(self) -> None:
         """Test an ORCID that does not exist in Wikidata."""
         orcid = "0000-0003-4518-7959"  # person from discipline who probably won't get added
-        lines = list(iter_orcid_lines(orcid))
+        lines = cast(
+            tuple[CreateLine, TextLine, TextLine, EntityLine, EntityLine, TextLine],
+            tuple(iter_orcid_lines(orcid)),
+        )
         self.assertEqual(6, len(lines))
         create_line, len_line, den_line, instance_line, occupation_line, orcid_line = lines
 

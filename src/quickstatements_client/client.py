@@ -130,7 +130,7 @@ class QuickStatementsClient:
         )
 
     @staticmethod
-    def open_new_tab(lines: Iterable[Line]):
+    def open_new_tab(lines: Iterable[Line]) -> bool:
         """Open a web browser on the host system."""
         return webbrowser.open_new_tab(lines_to_url(lines))
 

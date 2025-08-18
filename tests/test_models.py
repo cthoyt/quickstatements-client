@@ -61,10 +61,14 @@ class TestQuickStatements(unittest.TestCase):
         test_start_date, start_date_precision = _get_date(education_data[1])
         test_end_date, end_date_precision = _get_date(education_data[1], start_or_end="end")
 
+        if test_start_date is None:
+            raise TypeError
         self.assertEqual(
             "+2015-08-00T00:00:00Z/10",
             prepare_date(test_start_date, precision=start_date_precision),
         )
+        if test_end_date is None:
+            raise TypeError
         self.assertEqual(
             "+2017-10-27T00:00:00Z/11", prepare_date(test_end_date, precision=end_date_precision)
         )
