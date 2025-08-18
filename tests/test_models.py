@@ -4,6 +4,7 @@ import datetime
 import json
 import unittest
 from pathlib import Path
+from typing import Any
 
 import pydantic.error_wrappers
 
@@ -24,7 +25,7 @@ SAMPLE_ORCID_PATH = HERE.joinpath("sample_orcid.json")
 class TestQuickStatements(unittest.TestCase):
     """Tests for quickstatements."""
 
-    def test_base_line(self):
+    def test_base_line(self) -> None:
         """Test instantiating the base line object."""
         for subject, predicate in [
             ("LAST", "Len"),
@@ -52,7 +53,7 @@ class TestQuickStatements(unittest.TestCase):
             ):
                 TextLine(subject=subject, predicate=predicate, target=text)
 
-    def test_prepare_date(self):
+    def test_prepare_date(self) -> None:
         """Test the date cleaning function."""
         sample_orcid_data = json.loads(SAMPLE_ORCID_PATH.read_text())
         education_data = sample_orcid_data["activities-summary"]["educations"]["education-summary"]
@@ -68,7 +69,7 @@ class TestQuickStatements(unittest.TestCase):
             "+2017-10-27T00:00:00Z/11", prepare_date(test_end_date, precision=end_date_precision)
         )
 
-    def test_quickstatements(self):
+    def test_quickstatements(self) -> None:
         """Test quick statements."""
         subject_qid = "Q47475003"  # Charles Tapley Hoyt
         reference_url_qualifier = TextQualifier(
@@ -117,7 +118,9 @@ class TestQuickStatements(unittest.TestCase):
         self.assertEqual('Q47475003|P1449|"Charlie"', nickname_line.get_line())
 
 
-def _get_date(entry, start_or_end="start") -> tuple[datetime.datetime, int] | tuple[None, None]:
+def _get_date(
+    entry: dict[str, Any], start_or_end: str = "start"
+) -> tuple[datetime.datetime, int] | tuple[None, None]:
     """Get a date out of part of an ORCID record."""
     date = entry.get(f"{start_or_end}-date")
     if date is None:

@@ -4,7 +4,7 @@ import datetime
 import logging
 import webbrowser
 from collections.abc import Iterable, Sequence
-from typing import Annotated, Literal, get_args
+from typing import Annotated, Any, Literal, get_args
 from urllib.parse import quote
 
 from pydantic import BaseModel, Field
@@ -31,12 +31,12 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-def _safe_field(*, regex: str | None = None, **kwargs) -> Field:
+def _safe_field(*, regex: str | None = None, **kwargs: Any) -> Field:  # type:ignore
     try:
-        rv = Field(regex=regex, **kwargs)
+        rv = Field(regex=regex, **kwargs)  # type:ignore
     except TypeError:
         rv = Field(pattern=regex, **kwargs)
-    return rv
+    return rv  # type:ignore
 
 
 class EntityQualifier(BaseModel):
@@ -227,7 +227,8 @@ section=6#Adding_labels,_aliases,_descriptions_and_sitelinks
 
     def get_target(self) -> str:
         """Get the target of the line."""
-        return self.target
+        # target should be defined in subclasses
+        return self.target  # type:ignore
 
     def get_line(self, sep: str = "|") -> str:
         """Get the QuickStatement line as a string."""
@@ -296,11 +297,11 @@ def lines_to_new_tab(lines: Iterable[Line]) -> bool:
     return webbrowser.open_new_tab(lines_to_url(lines))
 
 
-def _unpack_annotated(t) -> Sequence[type]:
+def _unpack_annotated(t: Any) -> Sequence[type]:
     return get_args(get_args(t)[0])
 
 
-def write_json_schema():
+def write_json_schema() -> None:
     """Write a JSON schema."""
     import json
 

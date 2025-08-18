@@ -155,7 +155,7 @@ def iter_orcid_lines(orcid: str, create: bool = True, append: bool = False) -> I
 
 @click.command(name="orcid")
 @click.argument("orcid")
-def main(orcid: str):
+def main(orcid: str) -> None:
     """Add an ORCID to Wikidata."""
     from quickstatements_client.model import lines_to_new_tab
 

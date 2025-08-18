@@ -19,7 +19,7 @@ PATH = HERE.joinpath("data.json")
 LANGUAGE_CODES = json.loads(PATH.read_text())
 
 
-def main():
+def main() -> None:
     """Download the ISO code list and dump it in the JSON file."""
     raise NotImplementedError
 

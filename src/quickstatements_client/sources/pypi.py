@@ -276,7 +276,7 @@ def _dict_get(data: Mapping[str, str], keys: Sequence[str]) -> str | None:
 @click.command(name="pypi")
 @click.argument("package")
 @click.option("--skip-check", is_flag=True)
-def main(package: str, skip_check: bool):
+def main(package: str, skip_check: bool) -> None:
     """Add a PyPI package to Wikidata."""
     from quickstatements_client.model import lines_to_new_tab
 

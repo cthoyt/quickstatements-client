@@ -9,11 +9,11 @@ from quickstatements_client.sources.orcid import check_orcid_exists, iter_orcid_
 class TestORCID(unittest.TestCase):
     """Tests for ORCID."""
 
-    def test_not_exists(self):
+    def test_not_exists(self) -> None:
         """Test checking the API for ORCID records."""
         self.assertFalse(check_orcid_exists("0000-0002-6443-9377"))
 
-    def test_in_wikidata(self):
+    def test_in_wikidata(self) -> None:
         """Test what happens on a page that exists."""
         orcid = "0000-0003-4423-4370"  # Represents Charlie, who already has a page
 
@@ -33,7 +33,7 @@ class TestORCID(unittest.TestCase):
         self.assertIsInstance(orcid_line, TextLine)
         self.assertEqual(orcid, orcid_line.target)
 
-    def test_not_in_wikidata(self):
+    def test_not_in_wikidata(self) -> None:
         """Test an ORCID that does not exist in Wikidata."""
         orcid = "0000-0003-4518-7959"  # person from discipline who probably won't get added
         lines = list(iter_orcid_lines(orcid))

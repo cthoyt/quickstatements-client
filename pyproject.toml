@@ -81,7 +81,7 @@ typing = [
     { include-group = "tests" },
     "mypy",
     "pydantic",
-    # You will probably have to add additional type stubs here, especially if you're using tox-uv
+    "types-requests",
 ]
 docs-lint = [
     { include-group = "docs" },
