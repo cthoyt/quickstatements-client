@@ -114,7 +114,7 @@ def format_date(
     return f"+{year:04}-{month:02}-{day:02}T{hour:02}:{minute:02}:{second:02}Z/{precision}"
 
 
-def prepare_date(
+def prepare_date(  # noqa:C901
     target: str | datetime.datetime | datetime.date, *, precision: int | None = None
 ) -> str:
     """Prepare a date for quickstatements."""
@@ -171,8 +171,7 @@ def prepare_date(
         )
     else:
         raise ValueError(f"Invalid precision: {precision}")
-    # No precision case:
-    # return f"+{target.isoformat()}Z"
+    # No precision case: f"+{target.isoformat()}Z" noqa
 
 
 class TextQualifier(BaseModel):
@@ -210,7 +209,8 @@ class BaseLine(BaseModel):
         description="""\
         The predicate can be one of two things:
 
-        1. A Wikidata predicate, which starts with an upper case letter P, followed by a sequence of digits
+        1. A Wikidata predicate, which starts with an upper case letter P,
+           followed by a sequence of digits
         2. A combination of a single letter command code and an ISO639 language code.
            The single letter command codes can be:
            - ``L`` for label

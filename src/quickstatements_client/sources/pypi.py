@@ -100,7 +100,7 @@ def get_pypi_api(pypi_project: str) -> requests.Response:
     return requests.get(f"https://pypi.org/pypi/{pypi_project}/json", timeout=300)
 
 
-def iter_pypi_lines(
+def iter_pypi_lines(  # noqa:C901
     pypi_project: str,
     *,
     create: bool = True,
@@ -246,7 +246,8 @@ def iter_pypi_lines(
         requirement_qid = get_package_qid(first_part)
         if not requirement_qid:
             logger.warning(
-                f"[pypi:{pypi_project}] could not look up requirement: {requirement} (parsed out {first_part})"
+                f"[pypi:{pypi_project}] could not look up requirement: "
+                f"{requirement} (parsed out {first_part})"
             )
             continue
         yield EntityLine(

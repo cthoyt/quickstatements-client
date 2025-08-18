@@ -71,7 +71,6 @@ class TestQuickStatements(unittest.TestCase):
     def test_quickstatements(self):
         """Test quick statements."""
         subject_qid = "Q47475003"  # Charles Tapley Hoyt
-        # subject_orcid = "0000-0003-4423-4370"
         reference_url_qualifier = TextQualifier(
             predicate="S854", target="https://orcid.org/0000-0003-4423-4370"
         )

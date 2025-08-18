@@ -11,7 +11,6 @@ class TestORCID(unittest.TestCase):
 
     def test_not_exists(self):
         """Test checking the API for ORCID records."""
-        # self.assertTrue(orcid_exists("0000-0003-4423-4370"))
         self.assertFalse(check_orcid_exists("0000-0002-6443-9377"))
 
     def test_in_wikidata(self):
