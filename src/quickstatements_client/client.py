@@ -3,19 +3,19 @@
 from __future__ import annotations
 
 import webbrowser
-from typing import Any, Iterable, Optional, Union
+from collections.abc import Iterable
+from typing import Any, Literal
 
 import pystow
 import requests
 from pydantic import BaseModel, Field
-from typing_extensions import Literal
 
 from quickstatements_client.constants import TimeoutHint
 from quickstatements_client.model import Line, lines_to_url, render_lines
 
 __all__ = [
-    "QuickStatementsClient",
     "Post",
+    "QuickStatementsClient",
     "Response",
     "post_lines",
 ]
@@ -25,7 +25,7 @@ class Response(BaseModel):
     """A data model for the response returned by the QuickStatements API."""
 
     status: str
-    batch_id: Union[str, int, None] = None
+    batch_id: str | int | None = None
 
     @property
     def batch_url(self) -> str:
@@ -34,14 +34,15 @@ class Response(BaseModel):
 
 
 def post_lines(
-    lines: Iterable[Line], *, batch_name: Optional[str] = None, timeout: TimeoutHint = None
+    lines: Iterable[Line], *, batch_name: str | None = None, timeout: TimeoutHint = None
 ) -> Response:
     """Post lines to the QuickStatements using the default client.
 
     :param lines: The QuickStatement lines to post
     :param batch_name: The name of the batch
     :param timeout: The timeout in seconds (defaults to 300)
-    :return: The response from the QuickStatements API
+
+    :returns: The response from the QuickStatements API
     """
     client = QuickStatementsClient()
     response = client.post(lines, batch_name=batch_name, timeout=timeout)
@@ -54,18 +55,18 @@ class QuickStatementsClient:
     def __init__(
         self,
         *,
-        base_url: Optional[str] = None,
-        token: Optional[str] = None,
-        username: Optional[str] = None,
+        base_url: str | None = None,
+        token: str | None = None,
+        username: str | None = None,
     ):
         """Initialize the QuickStatements API client.
 
         :param base_url: The base URL of the QuickStatements instance
-        :param token: The token for the QuickStatements API.
-            Get one from https://tools.wmflabs.org/quickstatements/#/user.
-            Loads from :func:`pystow.get_config`.
-        :param username: The username associated with the token for the
-            QuickStatements API. Loads from :func:`pystow.get_config`.
+        :param token: The token for the QuickStatements API. Get one from
+            https://tools.wmflabs.org/quickstatements/#/user. Loads from
+            :func:`pystow.get_config`.
+        :param username: The username associated with the token for the QuickStatements
+            API. Loads from :func:`pystow.get_config`.
         """
         self.base_url = (base_url or "https://quickstatements.toolforge.org").rstrip("/")
         self.endpoint = f"{self.base_url}/api.php"
@@ -73,7 +74,7 @@ class QuickStatementsClient:
         self.username = pystow.get_config("quickstatements", "username", passthrough=username)
 
     def post(
-        self, lines: Iterable[Line], batch_name: Optional[str] = None, timeout: TimeoutHint = None
+        self, lines: Iterable[Line], batch_name: str | None = None, timeout: TimeoutHint = None
     ) -> Response:
         """Post a batch of QuickStatements with an optional name."""
         if timeout is None:
@@ -96,10 +97,13 @@ class QuickStatementsClient:
 
         :param batch_id: The QuickStatements batch ID.
         :param timeout: Number of seconds before timeout. Defaults to 10 seconds.
-        :return: An object containing information about the batch
 
-        For example, see https://quickstatements.toolforge.org/api.php?action=get_batch_info&batch=235284.
-        Identifiers for recent batches can be found at https://quickstatements.toolforge.org/#/batches.
+        :returns: An object containing information about the batch
+
+        For example, see
+        https://quickstatements.toolforge.org/api.php?action=get_batch_info&batch=235284.
+        Identifiers for recent batches can be found at
+        https://quickstatements.toolforge.org/#/batches.
         """
         if timeout is None:
             timeout = 10
@@ -126,7 +130,7 @@ class QuickStatementsClient:
         )
 
     @staticmethod
-    def open_new_tab(lines: Iterable[Line]):
+    def open_new_tab(lines: Iterable[Line]) -> bool:
         """Open a web browser on the host system."""
         return webbrowser.open_new_tab(lines_to_url(lines))
 
@@ -137,7 +141,7 @@ class Post(BaseModel):
     username: str = Field(...)
     token: str = Field(...)
     data: str = Field(...)
-    batchname: Optional[str] = Field(default=None)
+    batchname: str | None = Field(default=None)
     compress: int = Field(
         default=0,
         description="[optional; deactivates compression of CREATE and following LAST commands]",
@@ -155,9 +159,9 @@ class BatchInfo(BaseModel):
     run: int = Field(default=0, description="The number of statements being run right now")
     error: int = Field(default=0, description="The number of statements that failed")
     init: int = Field(default=0, description="The number of statements left to run")
-    name: Optional[str] = None
-    message: Optional[str] = None
-    last_item: Optional[str] = None
+    name: str | None = None
+    message: str | None = None
+    last_item: str | None = None
     status: Literal["done", "run", "stop"]
     username: str
     user: int

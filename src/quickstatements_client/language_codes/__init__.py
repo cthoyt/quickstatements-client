@@ -2,7 +2,9 @@
 
 Run this module as a script to download the list again.
 
-.. seealso:: https://www.wikidata.org/wiki/Help:Wikimedia_language_codes/lists/all.
+.. seealso::
+
+    https://www.wikidata.org/wiki/Help:Wikimedia_language_codes/lists/all.
 """
 
 import json
@@ -17,7 +19,7 @@ PATH = HERE.joinpath("data.json")
 LANGUAGE_CODES = json.loads(PATH.read_text())
 
 
-def main():
+def main() -> None:
     """Download the ISO code list and dump it in the JSON file."""
     raise NotImplementedError
 

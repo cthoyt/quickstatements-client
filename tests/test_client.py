@@ -8,11 +8,11 @@ from quickstatements_client import QuickStatementsClient
 class TestClient(unittest.TestCase):
     """Tests for the QuickStatements client class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up the test case with a quickstatements client."""
         self.client = QuickStatementsClient()
 
-    def test_batch_info(self):
+    def test_batch_info(self) -> None:
         """Test getting batch info."""
         batch_info = self.client.get_batch_info(235283)
         self.assertEqual(23, batch_info.error)

@@ -1,5 +1,6 @@
 Usage
 =====
+
 .. automodule:: quickstatements_client.model
     :members:
 

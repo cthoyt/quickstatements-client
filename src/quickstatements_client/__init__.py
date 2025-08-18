@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """A data model and client for Wikidata QuickStatements."""
 
 from .client import QuickStatementsClient, post_lines
@@ -19,21 +17,21 @@ from .model import (
 )
 
 __all__ = [
-    # Client
-    "QuickStatementsClient",
+    "CreateLine",
+    "DateLine",
+    "DateQualifier",
+    "EntityLine",
     # Data model
     "EntityQualifier",
-    "DateQualifier",
-    "TextQualifier",
-    "Qualifier",
-    "CreateLine",
-    "TextLine",
-    "EntityLine",
-    "DateLine",
     "Line",
+    "Qualifier",
+    # Client
+    "QuickStatementsClient",
+    "TextLine",
+    "TextQualifier",
+    "lines_to_new_tab",
+    "lines_to_url",
     # Line renderers
     "post_lines",
     "render_lines",
-    "lines_to_url",
-    "lines_to_new_tab",
 ]

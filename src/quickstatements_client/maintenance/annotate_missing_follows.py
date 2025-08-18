@@ -23,7 +23,7 @@ WHERE {
 
 @click.command()
 @click.option("--non-interactive", is_flag=True)
-def main(non_interactive: bool):
+def main(non_interactive: bool) -> None:
     """Add missing "follows" relationships to postprints."""
     lines = [
         EntityLine(
