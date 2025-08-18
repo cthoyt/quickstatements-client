@@ -3,35 +3,35 @@
 import datetime
 import logging
 import webbrowser
-from typing import Iterable, List, Optional, Sequence, Type, Union
+from collections.abc import Iterable, Sequence
+from typing import Annotated, Literal, get_args
 from urllib.parse import quote
 
 from pydantic import BaseModel, Field
-from typing_extensions import Annotated, Literal, get_args
 
 from .language_codes import LANGUAGE_CODES
 
 __all__ = [
+    "CreateLine",
+    "DateLine",
+    "DateQualifier",
+    "EntityLine",
     # Data model
     "EntityQualifier",
-    "DateQualifier",
-    "TextQualifier",
-    "Qualifier",
-    "CreateLine",
-    "TextLine",
-    "EntityLine",
-    "DateLine",
     "Line",
+    "Qualifier",
+    "TextLine",
+    "TextQualifier",
+    "lines_to_new_tab",
+    "lines_to_url",
     # Line renderers
     "render_lines",
-    "lines_to_url",
-    "lines_to_new_tab",
 ]
 
 logger = logging.getLogger(__name__)
 
 
-def _safe_field(*, regex: Optional[str] = None, **kwargs) -> Field:
+def _safe_field(*, regex: str | None = None, **kwargs) -> Field:
     try:
         rv = Field(regex=regex, **kwargs)
     except TypeError:
@@ -65,9 +65,9 @@ class DateQualifier(BaseModel):
     @classmethod
     def point_in_time(
         cls,
-        target: Union[str, datetime.datetime, datetime.date],
+        target: str | datetime.datetime | datetime.date,
         *,
-        precision: Optional[int] = None,
+        precision: int | None = None,
     ) -> "DateQualifier":
         """Get a qualifier for a point in time."""
         return cls(predicate="P585", target=prepare_date(target, precision=precision))
@@ -75,9 +75,9 @@ class DateQualifier(BaseModel):
     @classmethod
     def start_time(
         cls,
-        target: Union[str, datetime.datetime, datetime.date],
+        target: str | datetime.datetime | datetime.date,
         *,
-        precision: Optional[int] = None,
+        precision: int | None = None,
     ) -> "DateQualifier":
         """Get a qualifier for a start time."""
         return cls(predicate="P580", target=prepare_date(target, precision=precision))
@@ -85,17 +85,15 @@ class DateQualifier(BaseModel):
     @classmethod
     def end_time(
         cls,
-        target: Union[str, datetime.datetime, datetime.date],
+        target: str | datetime.datetime | datetime.date,
         *,
-        precision: Optional[int] = None,
+        precision: int | None = None,
     ) -> "DateQualifier":
         """Get a qualifier for an end time."""
         return cls(predicate="P582", target=prepare_date(target, precision=precision))
 
     @classmethod
-    def retrieved(
-        cls, namespace: Literal["P", "S"], precision: Optional[int] = 11
-    ) -> "DateQualifier":
+    def retrieved(cls, namespace: Literal["P", "S"], precision: int | None = 11) -> "DateQualifier":
         """Get a qualifier for retrieving data now."""
         # FIXME this doesn't appear to work with higher granularity like 14
         now = datetime.datetime.now()
@@ -117,12 +115,12 @@ def format_date(
 
 
 def prepare_date(
-    target: Union[str, datetime.datetime, datetime.date], *, precision: Optional[int] = None
+    target: str | datetime.datetime | datetime.date, *, precision: int | None = None
 ) -> str:
     """Prepare a date for quickstatements."""
     if isinstance(target, str):
         return target
-    if not isinstance(target, (datetime.datetime, datetime.date)):
+    if not isinstance(target, datetime.datetime | datetime.date):
         raise TypeError
     if precision is None:
         precision = 11
@@ -190,9 +188,7 @@ class TextQualifier(BaseModel):
 
 
 #: A union of the qualifier types
-Qualifier = Annotated[
-    Union[EntityQualifier, DateQualifier, TextQualifier], Field(discriminator="type")
-]
+Qualifier = Annotated[EntityQualifier | DateQualifier | TextQualifier, Field(discriminator="type")]
 
 
 class CreateLine(BaseModel):
@@ -227,7 +223,7 @@ section=6#Adding_labels,_aliases,_descriptions_and_sitelinks
         To do: add support for sitelinks.
         """,
     )
-    qualifiers: List[Qualifier] = Field(default_factory=list)
+    qualifiers: list[Qualifier] = Field(default_factory=list)
 
     def get_target(self) -> str:
         """Get the target of the line."""
@@ -264,8 +260,8 @@ class DateLine(BaseLine):
     """A line whose target is a date/datetime."""
 
     type: Literal["Date"] = "Date"
-    target: Union[datetime.datetime, datetime.date]
-    precision: Optional[int] = None
+    target: datetime.datetime | datetime.date
+    precision: int | None = None
 
     def get_target(self) -> str:
         """Get the date literal line."""
@@ -273,7 +269,7 @@ class DateLine(BaseLine):
 
 
 #: A union of the line types
-Line = Annotated[Union[CreateLine, EntityLine, TextLine, DateLine], Field(discriminator="type")]
+Line = Annotated[CreateLine | EntityLine | TextLine | DateLine, Field(discriminator="type")]
 
 
 def render_lines(lines: Iterable[Line], sep: str = "|", newline: str = "||") -> str:
@@ -291,6 +287,7 @@ def lines_to_new_tab(lines: Iterable[Line]) -> bool:
     """Open a web browser on the host system.
 
     :param lines: QuickStatements lines
+
     :returns: If a web browser was successfully invoked (via :func:`webbrowser.open`)
     """
     lines = list(lines)
@@ -299,7 +296,7 @@ def lines_to_new_tab(lines: Iterable[Line]) -> bool:
     return webbrowser.open_new_tab(lines_to_url(lines))
 
 
-def _unpack_annotated(t) -> Sequence[Type]:
+def _unpack_annotated(t) -> Sequence[type]:
     return get_args(get_args(t)[0])
 
 

@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """Create QuickStatements from the Python Package Index (PyPI)."""
 
 import json
 import logging
+from collections.abc import Iterable, Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable, Mapping, Optional, Sequence
 
 import click
 import requests
@@ -34,7 +32,7 @@ USERS = HERE.joinpath("users.json")
 def load_licenses() -> Mapping[str, str]:
     """Load mapping of license short name to license Wikidata QID.
 
-    :return: A mapping from normalized name to license QID.
+    :returns: A mapping from normalized name to license QID.
 
     This dictionary was generated with the following SPARQL:
 
@@ -71,28 +69,29 @@ def load_packages() -> Mapping[str, str]:
 
     .. warning::
 
-        The Wikidata SPARQL endpoint does not update immediately
-        after creating new entries, therefore this query could lag
-        behind by 10-15 minutes.
+        The Wikidata SPARQL endpoint does not update immediately after creating new
+        entries, therefore this query could lag behind by 10-15 minutes.
     """
     return {_norm(record["name"]): record["item"] for record in query_wikidata(PACKAGES_SPARQL)}
 
 
-def get_license_qid(name: str) -> Optional[str]:
+def get_license_qid(name: str) -> str | None:
     """Get a license QID from a name."""
     return load_licenses().get(_norm(name))
 
 
-def get_package_qid(name: str) -> Optional[str]:
+def get_package_qid(name: str) -> str | None:
     """Get a Python package QID from a name."""
     return load_packages().get(_norm(name))
 
 
 git_qualifier = EntityQualifier(
-    predicate="P8423", target="Q186055"  # version control system  # git
+    predicate="P8423",
+    target="Q186055",  # version control system  # git
 )
 github_qualifier = EntityQualifier(
-    predicate="P10627", target="Q364"  # web interface software  # GitHub
+    predicate="P10627",
+    target="Q364",  # web interface software  # GitHub
 )
 
 
@@ -109,22 +108,22 @@ def iter_pypi_lines(
 ) -> Iterable[Line]:
     """Yield QuickStatements lines about a Python package in PyPI.
 
-    :param pypi_project: The name of the project on PyPI (i.e.,
-        ``pystow`` for https://pypi.org/pypi/pystow
-    :param create:
-        In the case when there is not already a P5568 property linking
-        a Wikidata entry to the given PyPI project, this has two effects:
+    :param pypi_project: The name of the project on PyPI (i.e., ``pystow`` for
+        https://pypi.org/pypi/pystow
+    :param create: In the case when there is not already a P5568 property linking a
+        Wikidata entry to the given PyPI project, this has two effects:
 
         - if true, will create a new entry.
         - if false, will not yield any QuickStatements lines
 
         .. warning::
 
-            Use this with care, as not all entries on Wikidata are
-            fully annotated, and this could lead to duplicate entries
-    :param skip_check:
-        Switch this to true if you know for sure there
-        is no QID for the package already
+            Use this with care, as not all entries on Wikidata are fully annotated, and
+            this could lead to duplicate entries
+
+    :param skip_check: Switch this to true if you know for sure there is no QID for the
+        package already
+
     :yields: QuickStatements lines
     """
     pypi_project = pypi_project.replace("_", "-")
@@ -258,13 +257,13 @@ def iter_pypi_lines(
         )
 
 
-def _norm(s: Optional[str]) -> str:
+def _norm(s: str | None) -> str:
     if not s:
         return ""
     return s.lower().replace(" ", "").replace("-", "")
 
 
-def _dict_get(data: Mapping[str, str], keys: Sequence[str]) -> Optional[str]:
+def _dict_get(data: Mapping[str, str], keys: Sequence[str]) -> str | None:
     data = {_norm(k): v for k, v in data.items()}
     keys = [_norm(k) for k in keys]
     for key in keys:

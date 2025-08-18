@@ -4,7 +4,6 @@ import datetime
 import json
 import unittest
 from pathlib import Path
-from typing import Tuple, Union
 
 import pydantic.error_wrappers
 
@@ -119,9 +118,7 @@ class TestQuickStatements(unittest.TestCase):
         self.assertEqual('Q47475003|P1449|"Charlie"', nickname_line.get_line())
 
 
-def _get_date(
-    entry, start_or_end="start"
-) -> Union[Tuple[datetime.datetime, int], Tuple[None, None]]:
+def _get_date(entry, start_or_end="start") -> tuple[datetime.datetime, int] | tuple[None, None]:
     """Get a date out of part of an ORCID record."""
     date = entry.get(f"{start_or_end}-date")
     if date is None:

@@ -2,7 +2,9 @@
 
 Run this module as a script to download the list again.
 
-.. seealso:: https://www.wikidata.org/wiki/Help:Wikimedia_language_codes/lists/all.
+.. seealso::
+
+    https://www.wikidata.org/wiki/Help:Wikimedia_language_codes/lists/all.
 """
 
 import json

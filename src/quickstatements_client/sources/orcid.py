@@ -1,14 +1,15 @@
-# -*- coding: utf-8 -*-
-
 """Create QuickStatements from the ORCID API.
 
-.. seealso:: More detailed functionality is implemented in https://github.com/lubianat/pyorcidator
+.. seealso::
+
+    More detailed functionality is implemented in
+    https://github.com/lubianat/pyorcidator
 """
 
 import logging
 import re
+from collections.abc import Iterable
 from functools import lru_cache
-from typing import Dict, Iterable, Optional
 
 import click
 import requests
@@ -25,11 +26,11 @@ from quickstatements_client.model import (
 from quickstatements_client.sources.utils import get_qid
 
 __all__ = [
+    "check_orcid_exists",
     "get_orcid_data",
     "get_orcid_name",
     "get_orcid_qid",
     "iter_orcid_lines",
-    "check_orcid_exists",
 ]
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ def _raise_on_invalid_orcid(orcid: str) -> None:
         raise ValueError
 
 
-def get_orcid_name(orcid: str, *, timeout: TimeoutHint = None) -> Optional[str]:
+def get_orcid_name(orcid: str, *, timeout: TimeoutHint = None) -> str | None:
     """Get a person's name from their ORCID."""
     dd = get_orcid_data(orcid=orcid, timeout=timeout)
     if dd is None:
@@ -68,7 +69,7 @@ def check_orcid_exists(orcid: str) -> bool:
     return res.status_code == 200
 
 
-def get_orcid_data(orcid: str, *, timeout: TimeoutHint = None) -> Optional[Dict[str, str]]:
+def get_orcid_data(orcid: str, *, timeout: TimeoutHint = None) -> dict[str, str] | None:
     """Get data from the ORCID API."""
     res = _get_orcid(orcid, timeout=timeout).json()
     person = res.get("person")
@@ -93,7 +94,7 @@ def get_orcid_data(orcid: str, *, timeout: TimeoutHint = None) -> Optional[Dict[
     return rv
 
 
-def get_orcid_qid(orcid: str) -> Optional[str]:
+def get_orcid_qid(orcid: str) -> str | None:
     """Get the QID for an ORCID."""
     _raise_on_invalid_orcid(orcid)
     return get_qid("P496", orcid)
@@ -104,8 +105,9 @@ def iter_orcid_lines(orcid: str, create: bool = True, append: bool = False) -> I
 
     :param orcid: The target ORCID identifier
     :param create: Should a new QID be created if none can be found? Defaults to true.
-    :param append: Should lines be added to an existing QID? Defaults to false.
-        If set to true, could make duplicate statements on an existing QID.
+    :param append: Should lines be added to an existing QID? Defaults to false. If set
+        to true, could make duplicate statements on an existing QID.
+
     :yields: QuickStatements lines
     """
     _raise_on_invalid_orcid(orcid)
