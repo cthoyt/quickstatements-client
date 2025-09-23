@@ -4,7 +4,7 @@ import datetime
 import logging
 import webbrowser
 from collections.abc import Iterable, Sequence
-from typing import Annotated, Any, Literal, get_args
+from typing import Annotated, Any, Literal, TypeAlias, get_args
 from urllib.parse import quote
 
 from pydantic import BaseModel, Field
@@ -187,7 +187,9 @@ class TextQualifier(BaseModel):
 
 
 #: A union of the qualifier types
-Qualifier = Annotated[EntityQualifier | DateQualifier | TextQualifier, Field(discriminator="type")]
+Qualifier: TypeAlias = Annotated[
+    EntityQualifier | DateQualifier | TextQualifier, Field(discriminator="type")
+]
 
 
 class CreateLine(BaseModel):
@@ -270,7 +272,9 @@ class DateLine(BaseLine):
 
 
 #: A union of the line types
-Line = Annotated[CreateLine | EntityLine | TextLine | DateLine, Field(discriminator="type")]
+Line: TypeAlias = Annotated[
+    CreateLine | EntityLine | TextLine | DateLine, Field(discriminator="type")
+]
 
 
 def render_lines(lines: Iterable[Line], sep: str = "|", newline: str = "||") -> str:

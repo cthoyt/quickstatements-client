@@ -87,10 +87,10 @@ class QuickStatementsClient:
         )
         res = requests.post(
             self.endpoint,
-            data=params.dict(),
+            data=params.model_dump(),
             timeout=timeout,
         )
-        return Response.parse_obj(res.json())
+        return Response.model_validate(res.json())
 
     def get_batch_info(self, batch_id: int, *, timeout: TimeoutHint = None) -> BatchInfo:
         """Get information about a QuickStatements batch.
