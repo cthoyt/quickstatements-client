@@ -21,9 +21,9 @@ if TYPE_CHECKING:
     import sssom
 
 __all__ = [
-    "open_quickstatements_tab",
-    "get_quickstatements_lines_from_msdf",
     "get_quickstatements_lines",
+    "get_quickstatements_lines_from_msdf",
+    "open_quickstatements_tab",
 ]
 
 
