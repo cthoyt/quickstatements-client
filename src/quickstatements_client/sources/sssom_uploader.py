@@ -7,12 +7,14 @@ mappings in a simple, tabular format.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 import bioregistry
 import curies
 import pandas as pd
-from curies.dataframe import filter_df_by_curies, filter_df_by_prefixes
+import wikidata_client
+from curies.dataframe import filter_df_by_curies, filter_df_by_prefixes, get_df_unique_prefixes
 
 import quickstatements_client
 from quickstatements_client import Line, Qualifier, TextLine, TextQualifier
@@ -44,21 +46,28 @@ def get_quickstatements_lines(
     """Get lines for QuickStatements that can be used to upload SSSOM to Wikidata."""
     df = filter_df_by_prefixes(df, column="subject_id", prefixes=["wikidata"])
     df = filter_df_by_curies(df, column="predicate_id", curies=["skos:exactMatch"])
-    prefix_to_wikidata = bioregistry.get_registry_map("wikidata")
+
+    # TODO use curies.Converter operation for this?
+    df["wikidata_id"] = df["subject_id"].str.removeprefix("wikidata:")
 
     mapping_set_qualifiers = [
         # this sets the "reference URL" to the mapping set ID
         TextQualifier(predicate="S854", target=metadata["mapping_set_id"]),
         # could also add more metadata here
     ]
+
+    prefix_to_wikidata = bioregistry.get_registry_map("wikidata")
+
+    wikidata_ids = df["wikidata_id"].unique().tolist()
+
+    wikidata_id_to_references = _get_wikidata_to_property_matches(
+        wikidata_ids, df, converter, prefix_to_wikidata
+    )
+    wikidata_id_to_exact = _get_wikidata_to_exact_matches(wikidata_ids)
+
     lines: list[Line] = []
-
-    # TODO get cache of items that already have mappings
-    wikidata_id_to_references: dict[str, set[curies.Reference]] = {}
-    wikidata_id_to_exact: dict[str, set[str]] = {}
-
     for _, row in df.iterrows():
-        subject = row["subject_id"].removeprefix("wikidata:")
+        subject = row["wikidata_id"]
         object_curie = row["object_id"]
         object_reference = converter.parse_curie(object_curie, strict=True)
 
@@ -83,6 +92,47 @@ def get_quickstatements_lines(
         lines.append(line)
 
     return lines
+
+
+def _get_wikidata_to_property_matches(
+    wikidata_ids: list[str],
+    df: pd.DataFrame,
+    converter: curies.Converter,
+    prefix_to_wikidata: dict[str, str] | None = None,
+) -> dict[str, set[curies.Reference]]:
+    if prefix_to_wikidata is None:
+        prefix_to_wikidata = bioregistry.get_registry_map("wikidata")
+
+    rv: defaultdict[str, set[curies.Reference]] = defaultdict(set)
+    for prefix in get_df_unique_prefixes(
+        df, column="object_id", converter=converter, validate=True
+    ):
+        if wdp := prefix_to_wikidata.get(prefix):
+            property_reference_sparql = f"""\
+                SELECT ?s ?o WHERE {{
+                    VALUES ?s {{ {" ".join(wikidata_ids)} }}
+                    ?s wdt:{wdp} ?o .
+                }}
+            """
+            for subject_id, object_id in wikidata_client.query(property_reference_sparql):
+                # FIXME handle what comes out of query
+                rv[subject_id].add(curies.Reference(prefix=prefix, identifier=object_id))
+
+    return dict(rv)
+
+
+def _get_wikidata_to_exact_matches(wikidata_ids: list[str]) -> dict[str, set[str]]:
+    sparql2 = f"""\
+        SELECT ?s ?p ?o WHERE {{
+            VALUES ?s {{ {" ".join(wikidata_ids)} }}
+            ?s wdt:P2888 ?o .
+        }}
+    """
+    rv: defaultdict[str, set[str]] = defaultdict(set)
+    for subject, object_uri in wikidata_client.query(sparql2):
+        # FIXME handle what comes out of query
+        rv[subject].add(object_uri)
+    return dict(rv)
 
 
 def _get_mapping_qualifiers(mapping: dict[str, Any]) -> list[Qualifier]:
