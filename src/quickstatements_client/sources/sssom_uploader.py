@@ -52,6 +52,11 @@ def get_quickstatements_lines(
         # could also add more metadata here
     ]
     lines: list[Line] = []
+
+    # TODO get cache of items that already have mappings
+    wikidata_id_to_references: dict[str, set[curies.Reference]] = {}
+    wikidata_id_to_exact: dict[str, set[str]] = {}
+
     for _, row in df.iterrows():
         subject = row["subject_id"].removeprefix("wikidata:")
         object_curie = row["object_id"]
@@ -59,19 +64,22 @@ def get_quickstatements_lines(
 
         wikidata_prop = prefix_to_wikidata.get(object_reference.prefix)
         if wikidata_prop:
-            line = TextLine(
-                subject=subject,
-                predicate=wikidata_prop,
-                target=object_reference.identifier,
-                qualifiers=[*mapping_set_qualifiers, *_get_mapping_qualifiers(row)],
-            )
+            if object_reference not in wikidata_id_to_references.get(subject, set()):
+                line = TextLine(
+                    subject=subject,
+                    predicate=wikidata_prop,
+                    target=object_reference.identifier,
+                    qualifiers=[*mapping_set_qualifiers, *_get_mapping_qualifiers(row)],
+                )
         else:
-            line = TextLine(
-                subject=subject,
-                predicate="P2888",  # exact match
-                target=converter.expand_reference(object_reference, strict=True),
-                qualifiers=[*mapping_set_qualifiers, *_get_mapping_qualifiers(row)],
-            )
+            object_uri = converter.expand_reference(object_reference, strict=True)
+            if object_uri not in wikidata_id_to_exact.get(subject, set()):
+                line = TextLine(
+                    subject=subject,
+                    predicate="P2888",  # exact match
+                    target=object_uri,
+                    qualifiers=[*mapping_set_qualifiers, *_get_mapping_qualifiers(row)],
+                )
         lines.append(line)
 
     return lines
