@@ -15,7 +15,7 @@ build:
   apt_packages:
     - graphviz
   tools:
-    python: "3.12"
+    python: "3.14"
 
   # adapted from uv recipe at https://docs.readthedocs.io/en/stable/build-customization.html#install-dependencies-with-uv
   # and comment at https://github.com/readthedocs/readthedocs.org/issues/11289#issuecomment-2103832834
