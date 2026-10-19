@@ -35,6 +35,7 @@ class EntityQualifier(BaseModel):
     """A qualifier that points to Wikidata entity."""
 
     type: Literal["Entity"] = "Entity"
+    # Q makes it a qualifier, S makes it a reference
     predicate: str = Field(pattern=r"^[PQS]\d+$")
     target: str = Field(pattern=r"^[PQS]\d+$")
 

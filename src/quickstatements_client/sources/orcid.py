@@ -100,7 +100,7 @@ def get_orcid_qid(orcid: str) -> str | None:
     return get_qid("P496", orcid)
 
 
-def iter_orcid_lines(orcid: str, create: bool = True, append: bool = False) -> Iterable[Line]:
+def iter_orcid_lines(orcid: str, *, create: bool = True, append: bool = False) -> Iterable[Line]:
     """Yield QuickStatements lines about a person from ORCID.
 
     :param orcid: The target ORCID identifier
@@ -121,6 +121,7 @@ def iter_orcid_lines(orcid: str, create: bool = True, append: bool = False) -> I
         yield CreateLine()
         orcid_qid = "LAST"
         name = data["name"]
+        # TODO change to L mul?
         yield TextLine(subject=orcid_qid, predicate="Len", target=name)
         yield TextLine(subject=orcid_qid, predicate="Den", target=f"Researcher ORCID={orcid}")
     elif not append:
@@ -154,13 +155,13 @@ def iter_orcid_lines(orcid: str, create: bool = True, append: bool = False) -> I
 
 
 @click.command(name="orcid")
-@click.argument("orcid")
-def main(orcid: str) -> None:
+@click.argument("orcids", nargs=-1)
+def main(orcids: list[str]) -> None:
     """Add an ORCID to Wikidata."""
     from quickstatements_client.model import lines_to_new_tab
 
-    lines_to_new_tab(iter_orcid_lines(orcid))
+    lines_to_new_tab(line for orcid in orcids for line in iter_orcid_lines(orcid))
 
 
 if __name__ == "__main__":
-    main("0000-0001-6677-8489")
+    main()

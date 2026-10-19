@@ -9,4 +9,4 @@ __all__ = [
 ]
 
 #: A type hint for the timeout in :func:`requests.get`
-TimeoutHint: TypeAlias = None | int | float | tuple[float | int, float | int]
+TimeoutHint: TypeAlias = int | float | tuple[float | int, float | int] | None

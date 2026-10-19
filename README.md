@@ -66,16 +66,14 @@ How to send some QuickStatements to the API:
 ```python
 from quickstatements_client import QuickStatementsClient
 
-lines = [
-   employment_line,
-   ...
-]
+lines = [employment_line, ...]
 
 client = QuickStatementsClient(token=..., username=...)
 res = client.post(lines, batch_name="Test Batch")
 # see also res.batch_id
 
 import webbrowser
+
 webbrowser.open_new_tab(res.batch_url)
 ```
 
